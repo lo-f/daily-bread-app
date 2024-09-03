@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block head %}
+
+{% endblock %}
+
+{% block content %}
+
+    <h1>Dashboard</h1>
+
+    <h2>Feedings</h2>
+    <ul>
+        {% for feeding in feedings %}
+            <li>{{ feeding.date }} - {{ feeding.meal_type }}
+                <ul>
+                    {% for item in feeding.fooditem_set.all %}
+                        <li>{{ item.name }}: {{ item.calories }} kcal</li>
+                    {% endfor %}
+                </ul>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <h2>Add New Feeding</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ feeding_form.as_p }}
+        {{ food_item_form.as_p }}
+        <button type="submit">Add Feeding</button>
+    </form>
+
+{% endblock %}
+
+<!-- WORKING ON DASHBOARD -->

@@ -22,7 +22,6 @@
             <nav>
                 <ul>
                     {% if user.is_authenticated %}
-                    <li><a href="{% url 'dashboard' %}">Food Log</a></li>
                     <li>
                         <form id="logout-form" method="post" action="{% url 'logout' %}">
                             {% csrf_token %}

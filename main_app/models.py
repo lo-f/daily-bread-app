@@ -1,6 +1,8 @@
 from django.db import models
 from django.urls import reverse
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 MEALS = (
     ('B', 'Breakfast'),
@@ -11,10 +13,10 @@ MEALS = (
 
 class Profile(models.Model):
     name = models.CharField(max_length=100)
-    age = models.IntegerField()
-    height = models.IntegerField()
-    weight = models.IntegerField()
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    age = models.PositiveIntegerField()
+    height = models.FloatField(help_text='Height in inches')
+    weight = models.FloatField(help_text='Weight in pounds')
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
@@ -33,3 +35,13 @@ class Feeding(models.Model):
     class Meta:
         ordering = ['-date']
 
+class FoodItem(models.Model):
+    meal = models.ForeignKey(Feeding, on_delete=models.CASCADE, related_name='food_item')
+    name = models.CharField(max_length=100)
+    calories = models.FloatField()
+    fats = models.FloatField()
+    proteins = models.FloatField()
+    carbs = models.FloatField()
+
+    def __str__(self):
+        return self.name

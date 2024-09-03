@@ -118,7 +118,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 LOGIN_URL = 'home'
-LOGIN_REDIRECT_URL = 'dashboard'
+LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
 
 # Default primary key field type
