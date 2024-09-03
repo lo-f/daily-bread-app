@@ -30,7 +30,7 @@ class Home(LoginView):
 
 @login_required
 def dashboard(request):
-    profile = Profile.objects.get(user=request.user)[:1]
+    profile = Profile.objects.get(user=request.user)
     feedings = Feeding.objects.filter(profile=profile).order_by('-date')[:1]
     if request.method == 'POST':
           feeding_form = FeedingForm(request.POST)
@@ -63,10 +63,12 @@ def signup(request):
     form = CreateUserForm(request.POST)
     if request.method == 'POST':
         if form.is_valid():
+            print('Form is valid.')
             user = form.save()
             login(request, user)
             return redirect('dashboard')
         else:
+            print('Error:', form.errors)
             error_message = 'Invalid sign up - try again'
 
     context = {'form': form, 'error_message': error_message}

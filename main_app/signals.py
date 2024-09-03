@@ -6,6 +6,12 @@ from .models import Profile
 @receiver(post_save, sender=User)
 def create_or_save_user_profile(sender, instance, created, **kwargs):
     if created and not instance.is_superuser:
-        Profile.objects.create(user=instance)
-    elif hasattr(instance, 'profile') and not instance.is_superuser:
-        instance.profile.save()
+        
+        if not hasattr(instance, 'profile'):
+            Profile.objects.create(
+                user=instance,
+                name='', 
+                age=0,
+                height=0.0,
+                weight=0.0,
+            )

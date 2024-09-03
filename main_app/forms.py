@@ -31,7 +31,7 @@ class FoodItemForm(forms.ModelForm):
 
 class CreateUserForm(UserCreationForm):
     name = forms.CharField(max_length=100, required=True, help_text='First and Last name')
-    age = forms.IntegerField(min_value=1, required=True,help_text='Enter your age')
+    age = forms.IntegerField(min_value=1, required=True, help_text='Enter your age')
     height = forms.FloatField(required=True, help_text='Height in inches')
     weight = forms.FloatField(required=True, help_text='Weight in pounds')
 
@@ -50,13 +50,10 @@ class CreateUserForm(UserCreationForm):
     def save(self, commit=True):
         user = super().save(commit=False)
         if commit:
+            print(f"Form is valid: {self.is_valid()}")
+            print(f"Cleaned data: {self.cleaned_data}")
             user.save()
-
-            Profile.objects.create(
-                user=user,
-                name=self.cleaned_data['name'],
-                age=self.cleaned_data['age'],
-                height=self.cleaned_data['height'],
-                weight=self.cleaned_data['weight']
-            )
+            
+        else:
+            print("Some fields are missing in cleaned data")
         return user
