@@ -5,6 +5,10 @@ urlpatterns = [
     # path('', views.Home.as_view(), name='home'),
     path('', views.Home.as_view(), name='home'),
     path('dashboard/', views.dashboard, name='dashboard'),
+    path('meals/<int:feeding_id>/', views.meal_detail, name='meal-detail'),
+    path('meals/<int:pk>/delete/', views.MealDelete.as_view(), name='meal-delete'),
+    path('meals/<int:pk>/update/', views.MealUpdate.as_view(), name='meal-update'),
+
     path('get-nutrition-data/', views.nutrition_view, name='nutrition_view'),
 
 

@@ -2,9 +2,11 @@ from django.shortcuts import render, redirect # type: ignore
 from django.contrib.auth.views import LoginView # type: ignore
 from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
+from django.views.generic.edit import DeleteView, UpdateView
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, JsonResponse
-from .forms import FeedingForm, FoodItemForm, CreateUserForm
+from .forms import FeedingForm, FoodItemFormSet, CreateUserForm
 from .models import Profile, Feeding, FoodItem
 from . import utils
 import os
@@ -31,32 +33,53 @@ class Home(LoginView):
 @login_required
 def dashboard(request):
     profile = Profile.objects.get(user=request.user)
-    feedings = Feeding.objects.filter(profile=profile).order_by('-date')[:1]
+    feedings = Feeding.objects.filter(profile=profile).order_by('-date')
     if request.method == 'POST':
           feeding_form = FeedingForm(request.POST)
-          food_item_form = FoodItemForm(request.POST)
+          food_item_formset = FoodItemFormSet(request.POST)
           
-          if feeding_form.is_valid() and food_item_form.is_valid():
+          if feeding_form.is_valid() and food_item_formset.is_valid():
                feeding = feeding_form.save(commit=False)
                feeding.profile = profile
                feeding.save()
 
-               food_item = food_item_form.save(commit=False)
-               food_item.feeding = feeding
-               food_item.save()
+               food_items = food_item_formset.save(commit=False)
+               for food_item in food_items:
+                    food_item.meal = feeding
+                    food_item.save()
                return redirect('dashboard')
     else:
         feeding_form = FeedingForm()
-        food_item_form = FoodItemForm()
+        food_item_formset = FoodItemFormSet()
     
     context = {
          'profile': profile,
          'feedings': feedings,
          'feeding_form': feeding_form,
-         'food_item_form': food_item_form,
+         'food_item_formset': food_item_formset,
     }
     return render(request, 'profile/dashboard.html', context)
 
+@login_required
+def meal_detail(request, feeding_id):
+     feeding = Feeding.objects.get(id=feeding_id)
+     feeding_form = FeedingForm()
+     return render(request, 'profile/meal_detail.html', {
+          'feeding': feeding,
+          'feeding_form': feeding_form
+     })
+
+class MealDelete(LoginRequiredMixin, DeleteView):
+     model = Feeding
+     success_url = '/dashboard/'
+
+class MealUpdate(LoginRequiredMixin, UpdateView):
+     model = Feeding
+     fields = [
+          'date',
+          'meal',
+     ]
+     success_url = '/dashboard/'
 
 def signup(request):
     error_message = ''

@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>Meal Details</h1>
+
+<a href="{% url 'meal-delete' feeding.id %}" class="btn danger">Delete</a>
+<a href="{% url 'meal-update' feeding.id %}" class="btn warning">Edit</a>
+
+<h1>Meal Detail</h1>
+<p><strong>Date:</strong> {{ feeding.date }}</p>
+<p><strong>Meal:</strong> {{ feeding.get_meal_display }}</p>
+
+<h2>Food Items</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Calories</th>
+            <th>Fats</th>
+            <th>Proteins</th>
+            <th>Carbs</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in feeding.food_item.all %}
+        <tr>
+            <td>{{ item.name }}</td>
+            <td>{{ item.calories }}</td>
+            <td>{{ item.fats }}</td>
+            <td>{{ item.proteins }}</td>
+            <td>{{ item.carbs }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5">No food items found.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
