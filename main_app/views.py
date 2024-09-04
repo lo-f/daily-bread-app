@@ -1,12 +1,13 @@
-from django.shortcuts import render, redirect # type: ignore
-from django.contrib.auth.views import LoginView # type: ignore
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.views import LoginView 
 from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
 from django.views.generic.edit import DeleteView, UpdateView
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.forms import modelformset_factory
 from django.http import HttpResponse, JsonResponse
-from .forms import FeedingForm, FoodItemFormSet, CreateUserForm
+from .forms import FeedingForm, FoodItemFormSet, CreateUserForm, FoodItemForm
 from .models import Profile, Feeding, FoodItem
 from . import utils
 import os
@@ -78,13 +79,27 @@ class MealDelete(LoginRequiredMixin, DeleteView):
      model = Feeding
      success_url = '/dashboard/'
 
-class MealUpdate(LoginRequiredMixin, UpdateView):
-     model = Feeding
-     fields = [
-          'date',
-          'meal',
-     ]
-     success_url = '/dashboard/'
+def update_feeding(request, pk):
+    feeding = get_object_or_404(Feeding, pk=pk)
+    FoodItemFormSet = modelformset_factory(FoodItem, form=FoodItemForm, extra=0, can_delete=True)
+
+    if request.method == 'POST':
+        feeding_form = FeedingForm(request.POST, instance=feeding)
+        food_item_formset = FoodItemFormSet(request.POST, queryset=feeding.food_item.all())
+
+        if feeding_form.is_valid() and food_item_formset.is_valid():
+            feeding_form.save()
+            food_item_formset.save()
+            return redirect('meal-detail', feeding_id=feeding.pk)
+
+    else:
+        feeding_form = FeedingForm(instance=feeding)
+        food_item_formset = FoodItemFormSet(queryset=feeding.food_item.all())
+
+    return render(request, 'main_app/feeding_form.html', {
+        'feeding_form': feeding_form,
+        'food_item_formset': food_item_formset,
+    })
 
 def signup(request):
     error_message = ''

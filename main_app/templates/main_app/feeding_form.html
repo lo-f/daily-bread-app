@@ -1,50 +1,108 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block head %}
+<!-- Additional styles or scripts if needed -->
+{% endblock %}
 
 {% block content %}
-<h2>Dashboard</h2>
 
-{% for feeding in feedings %}
-<div>
-    <h4>{{ feeding.meal }} on {{ feeding.date }}</h4>
-    <ul>
-        {% for food_item in feeding.food_item.all %}
-        <li>{{ food_item.name }} - {{ food_item.calories }} kcal</li>
-        {% endfor %}
-    </ul>
-</div>
-{% endfor %}
+<h1>Update Feeding</h1>
 
-<form method="post">
-    {% csrf_token %}
-    {{ feeding_form.as_p }}
+<div class="container mt-5">
+    <h2>Edit Meal</h2>
+    <form method="post" id="feeding-form">
+        {% csrf_token %}
 
-    <h3>Food Items</h3>
-    <div id="formset-container">
-        {{ food_item_formset.management_form }}
-        {% for form in food_item_formset %}
-        <div class="formset-form">
-            {{ form.as_p }}
+        <div>
+            <h3>Update Feeding</h3>
+            {{ feeding_form.as_p }}
+
+            <h4>Food Items</h4>
+            <div id="food-items">
+                {{ food_item_formset.management_form }}
+                {% for form in food_item_formset %}
+                <div class="food-item-form">
+                    {{ form.as_p }}
+                    <button type="button" class="remove-form">Remove</button>
+                </div>
+                {% endfor %}
+            </div>
+
+            <button type="button" id="add-food-item">Add Food Item</button>
+            <button type="submit">Save Changes</button>
         </div>
-        {% endfor %}
-    </div>
-
-    <button type="button" onclick="addForm()">Add Another Food Item</button>
-    <button type="submit">Save</button>
-</form>
+    </form>
+</div>
 
 <script>
-    function addForm() {
-        const formsetContainer = document.getElementById('formset-container');
-        const totalForms = document.getElementById('id_form-TOTAL_FORMS');
-        const formIndex = totalForms.value;
+    document.addEventListener('DOMContentLoaded', function () {
+        const formsetDiv = document.getElementById('food-items');
+        const addFoodItemBtn = document.getElementById('add-food-item');
+        const totalForms = document.querySelector('[name="fooditem-TOTAL_FORMS"]');
 
-        const newForm = document.createElement('div');
-        newForm.classList.add('formset-form');
-        newForm.innerHTML = formsetContainer.children[1].innerHTML.replace(/__prefix__/g, formIndex);
+        addFoodItemBtn.addEventListener('click', function () {
+            const currentFormCount = formsetDiv.getElementsByClassName('food-item-form').length;
+            const newForm = formsetDiv.getElementsByClassName('food-item-form')[0].cloneNode(true);
 
-        formsetContainer.appendChild(newForm);
+            updateFormIndex(newForm, currentFormCount);
 
-        totalForms.value = parseInt(totalForms.value) + 1;
-    }
+            const newFormInputs = newForm.querySelectorAll('input, select, textarea');
+            newFormInputs.forEach(input => {
+                if (input.type !== 'hidden') {
+                    input.value = '';
+                }
+                if (input.type === 'checkbox' || input.type === 'radio') {
+                    input.checked = false;
+                }
+            });
+
+            formsetDiv.appendChild(newForm);
+
+            totalForms.setAttribute('value', currentFormCount + 1);
+
+            addRemoveHandlers();
+        });
+
+        function updateFormIndex(form, index) {
+            const regex = /fooditem-(\d+)-/g;
+            form.innerHTML = form.innerHTML.replace(regex, `fooditem-${index}-`);
+
+            const allElements = form.querySelectorAll('input, label');
+            allElements.forEach(element => {
+                if (element.id) {
+                    element.id = element.id.replace(regex, `fooditem-${index}-`);
+                }
+                if (element.name) {
+                    element.name = element.name.replace(regex, `fooditem-${index}-`);
+                }
+                if (element.htmlFor) {
+                    element.htmlFor = element.htmlFor.replace(regex, `fooditem-${index}-`);
+                }
+            });
+        }
+
+        function addRemoveHandlers() {
+            const removeButtons = document.querySelectorAll('.remove-form');
+            removeButtons.forEach(button => {
+                button.onclick = function (e) {
+                    e.preventDefault();
+                    const formToRemove = e.target.closest('.food-item-form');
+                    formToRemove.remove();
+
+                    updateTotalForms();
+                };
+            });
+        }
+
+        function updateTotalForms() {
+            const formCount = formsetDiv.getElementsByClassName('food-item-form').length;
+            totalForms.setAttribute('value', formCount);
+        }
+
+        addRemoveHandlers();
+    });
+
 </script>
+
 {% endblock %}

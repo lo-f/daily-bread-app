@@ -19,16 +19,16 @@ class FeedingForm(forms.ModelForm):
             ),
         }
 
-# class FoodItemForm(forms.ModelForm):
-#     class Meta:
-#         model = FoodItem
-#         fields = [
-#             'name',
-#             'calories',
-#             'fats',
-#             'proteins',
-#             'carbs'
-#         ]
+class FoodItemForm(forms.ModelForm):
+    class Meta:
+        model = FoodItem
+        fields = [
+            'name',
+            'calories',
+            'fats',
+            'proteins',
+            'carbs'
+        ]
 FoodItemFormSet = inlineformset_factory(
     Feeding, FoodItem,
     form=forms.ModelForm,
