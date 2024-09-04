@@ -6,76 +6,93 @@
 
 {% block content %}
 
-    <h1>Dashboard</h1>
+<h1>Dashboard</h1>
 
-    <h2>Feedings</h2>
-    <ul>
-        {% for feeding in feedings %}
-            <li>
-                <a href="{% url 'meal-detail' feeding.id %}">{{ feeding }}</a>
-            </li>
-        {% endfor %}
-    </ul>
+<h2>Feedings</h2>
+<ul>
+    {% for feeding in feedings %}
+    <li>
+        <a href="{% url 'meal-detail' feeding.id %}">{{ feeding }}</a>
+    </li>
+    {% endfor %}
+</ul>
 
-    <div class="container mt-5">
-        <h2>Create a New Meal</h2>
-        <form method="post" id="feeding-form">
-            {% csrf_token %}
-            
-            <div>
-                <h3>Create a Feeding</h3>
-                {{ feeding_form.as_p }}
-        
-                <h4>Food Items</h4>
-                <div id="food-items">
-                    {{ food_item_formset.management_form }}
-                    {% for form in food_item_formset %}
-                        <div class="food-item-form">
-                            {{ form.as_p }}
-                            <button type="button" class="remove-form">Remove</button>
-                        </div>
-                    {% endfor %}
+<div class="container mt-5">
+    <h2>Create a New Meal</h2>
+    <form method="post" id="feeding-form">
+        {% csrf_token %}
+
+        <div>
+            <h3>Create a Feeding</h3>
+            {{ feeding_form.as_p }}
+
+            <h4>Food Items</h4>
+            <div id="food-items">
+                {{ food_item_formset.management_form }}
+                {% for form in food_item_formset %}
+                <div class="food-item-form">
+                    {{ form.as_p }}
+                    <button type="button" class="remove-form">Remove</button>
                 </div>
-                
-                <button type="button" id="add-food-item">Add Food Item</button>
-                <button type="submit">Save Feeding</button>
-            </div>
-        </form>
-    </div>
+                {% endfor %}
+            </div>            
 
-{% endblock %}
+            <button type="button" id="add-food-item">Add Food Item</button>
+            <button type="submit">Save Feeding</button>
+        </div>
+    </form>
+</div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const formsetDiv = document.getElementById('food-items');
         const addFoodItemBtn = document.getElementById('add-food-item');
-        const totalForms = document.getElementById('id_fooditem_set-TOTAL_FORMS');
+        const totalForms = document.querySelector('[name="fooditem-TOTAL_FORMS"]');
 
-        // Add new form
         addFoodItemBtn.addEventListener('click', function () {
             const currentFormCount = formsetDiv.getElementsByClassName('food-item-form').length;
             const newForm = formsetDiv.getElementsByClassName('food-item-form')[0].cloneNode(true);
-            const formRegex = new RegExp(`fooditem_set-(\\d){1}-`, 'g');
 
-            newForm.innerHTML = newForm.innerHTML.replace(formRegex, `fooditem_set-${currentFormCount}-`);
-            formsetDiv.appendChild(newForm);
+            updateFormIndex(newForm, currentFormCount);
 
-            totalForms.setAttribute('value', currentFormCount + 1);
-
-            // Reset values for new form fields
             const newFormInputs = newForm.getElementsByTagName('input');
             for (let input of newFormInputs) {
                 input.value = '';
             }
 
-            addRemoveHandlers();  // Re-assign remove handlers
+            formsetDiv.appendChild(newForm);
+
+            totalForms.setAttribute('value', currentFormCount + 1);
+
+            addRemoveHandlers();
         });
+
+        function updateFormIndex(form, index) {
+            const regex = /fooditem-(\d+)-/g;
+            form.innerHTML = form.innerHTML.replace(regex, `fooditem-${index}-`);
+
+            const allElements = form.querySelectorAll('input, label');
+            allElements.forEach(element => {
+                if (element.id) {
+                    element.id = element.id.replace(regex, `fooditem-${index}-`);
+                }
+                if (element.name) {
+                    element.name = element.name.replace(regex, `fooditem-${index}-`);
+                }
+                if (element.htmlFor) {
+                    element.htmlFor = element.htmlFor.replace(regex, `fooditem-${index}-`);
+                }
+            });
+        }
 
         function addRemoveHandlers() {
             const removeButtons = document.querySelectorAll('.remove-form');
             removeButtons.forEach(button => {
                 button.onclick = function (e) {
-                    e.target.closest('.food-item-form').remove();
+                    e.preventDefault();
+                    const formToRemove = e.target.closest('.food-item-form');
+                    formToRemove.remove();
+
                     updateTotalForms();
                 };
             });
@@ -86,8 +103,9 @@
             totalForms.setAttribute('value', formCount);
         }
 
-        addRemoveHandlers();  // Initialize remove handlers on page load
+        addRemoveHandlers();
     });
+
 </script>
 
-<!-- WORKING ON DASHBOARD -->
+{% endblock %}

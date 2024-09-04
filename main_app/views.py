@@ -19,9 +19,7 @@ from dotenv import load_dotenv
 
 
 load_dotenv()
-# API_KEY = os.getenv('API_KEY')
-# API = 'https://api.api-ninjas.com/v1/nutrition'
-# response = requests.get(API, headers={'X-Api-Key': 'API_KEY'})
+
 
 
 # Create your views here.
@@ -35,22 +33,29 @@ def dashboard(request):
     profile = Profile.objects.get(user=request.user)
     feedings = Feeding.objects.filter(profile=profile).order_by('-date')
     if request.method == 'POST':
-          feeding_form = FeedingForm(request.POST)
-          food_item_formset = FoodItemFormSet(request.POST)
+        feeding_form = FeedingForm(request.POST)
+        food_item_formset = FoodItemFormSet(request.POST, prefix='fooditem')
           
-          if feeding_form.is_valid() and food_item_formset.is_valid():
-               feeding = feeding_form.save(commit=False)
-               feeding.profile = profile
-               feeding.save()
+        if feeding_form.is_valid() and food_item_formset.is_valid():
+            feeding = feeding_form.save(commit=False)
+            feeding.profile = profile
+            feeding.save()
 
-               food_items = food_item_formset.save(commit=False)
-               for food_item in food_items:
-                    food_item.meal = feeding
-                    food_item.save()
-               return redirect('dashboard')
+            food_items = food_item_formset.save(commit=False)
+            for food_item in food_items:
+                food_item.meal = feeding
+                food_item.save()
+                print('food items saved')
+
+            for form in food_item_formset.deleted_forms:
+                if form.instance.pk:
+                    form.instance.delete()
+
+
+            return redirect('dashboard')
     else:
         feeding_form = FeedingForm()
-        food_item_formset = FoodItemFormSet()
+        food_item_formset = FoodItemFormSet(prefix='fooditem')
     
     context = {
          'profile': profile,
