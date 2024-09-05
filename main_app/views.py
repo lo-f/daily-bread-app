@@ -5,7 +5,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.views.generic.edit import DeleteView, UpdateView
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.forms import modelformset_factory
+from django.forms import modelformset_factory, inlineformset_factory
 from django.http import HttpResponse, JsonResponse
 from .forms import FeedingForm, FoodItemFormSet, CreateUserForm, FoodItemForm
 from .models import Profile, Feeding, FoodItem
@@ -80,26 +80,43 @@ class MealDelete(LoginRequiredMixin, DeleteView):
      success_url = '/dashboard/'
 
 def update_feeding(request, pk):
+    # Get the Feeding instance or return 404
     feeding = get_object_or_404(Feeding, pk=pk)
-    FoodItemFormSet = modelformset_factory(FoodItem, form=FoodItemForm, extra=0, can_delete=True)
 
-    if request.method == 'POST':
+    # Define the inline formset
+    FoodItemFormSet = inlineformset_factory(
+        Feeding, FoodItem, form=FoodItemForm, extra=1, can_delete=True
+    )
+
+    # Process the form on POST request
+    if request.method == "POST":
         feeding_form = FeedingForm(request.POST, instance=feeding)
-        food_item_formset = FoodItemFormSet(request.POST, queryset=feeding.food_item.all())
+        food_item_formset = FoodItemFormSet(
+            request.POST, instance=feeding, prefix="fooditem"
+        )
 
         if feeding_form.is_valid() and food_item_formset.is_valid():
+            # Save both feeding form and food items formset
             feeding_form.save()
             food_item_formset.save()
-            return redirect('meal-detail', feeding_id=feeding.pk)
-
+            return redirect("meal-detail", feeding_id=feeding.pk)
     else:
+        # Initialize forms for GET request
         feeding_form = FeedingForm(instance=feeding)
-        food_item_formset = FoodItemFormSet(queryset=feeding.food_item.all())
+        food_item_formset = FoodItemFormSet(instance=feeding, prefix="fooditem")
 
-    return render(request, 'main_app/feeding_form.html', {
-        'feeding_form': feeding_form,
-        'food_item_formset': food_item_formset,
-    })
+    # Render the template with the form and formset
+    return render(
+        request,
+        "main_app/feeding_form.html",
+        {
+            "feeding_form": feeding_form,
+            "food_item_formset": food_item_formset,
+            "feeding": feeding,
+        },
+    )
+
+
 
 def signup(request):
     error_message = ''

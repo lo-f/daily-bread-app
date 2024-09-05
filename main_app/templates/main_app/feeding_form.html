@@ -1,108 +1,90 @@
 {% extends 'base.html' %}
-{% load static %}
-
-{% block head %}
-<!-- Additional styles or scripts if needed -->
-{% endblock %}
 
 {% block content %}
+<h2>Edit Feeding</h2>
 
-<h1>Update Feeding</h1>
+<form method="post" id="feeding-form">
+    {% csrf_token %}
 
-<div class="container mt-5">
-    <h2>Edit Meal</h2>
-    <form method="post" id="feeding-form">
-        {% csrf_token %}
+    <div>
+        {{ feeding_form.non_field_errors }}
+        {{ feeding_form.as_p }}
+    </div>
 
-        <div>
-            <h3>Update Feeding</h3>
-            {{ feeding_form.as_p }}
+    <h3>Food Items</h3>
+    {{ food_item_formset.management_form }}
+    <div id="food-items">
+        {% for form in food_item_formset %}
+        <div class="food-item-form">
+            {{ form.as_p }}
 
-            <h4>Food Items</h4>
-            <div id="food-items">
-                {{ food_item_formset.management_form }}
-                {% for form in food_item_formset %}
-                <div class="food-item-form">
-                    {{ form.as_p }}
-                    <button type="button" class="remove-form">Remove</button>
-                </div>
-                {% endfor %}
-            </div>
-
-            <button type="button" id="add-food-item">Add Food Item</button>
-            <button type="submit">Save Changes</button>
+            {% if form.instance.pk %}
+            
+            {% else %}
+            <button type="button" class="remove-food-item">Remove</button>
+            {% endif %}
         </div>
-    </form>
-</div>
+        {% endfor %}
+    </div>
+
+    <button type="button" id="add-food-item">Add Food Item</button>
+
+    <button type="submit">Save Changes</button>
+</form>
+
+<a href="{% url 'meal-detail' feeding.id %}">Cancel</a>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const formsetDiv = document.getElementById('food-items');
-        const addFoodItemBtn = document.getElementById('add-food-item');
-        const totalForms = document.querySelector('[name="fooditem-TOTAL_FORMS"]');
+    document.addEventListener("DOMContentLoaded", function () {
+        function addForm() {
+            const totalForms = document.getElementById('id_fooditem-TOTAL_FORMS');
+            const formCount = parseInt(totalForms.value);
 
-        addFoodItemBtn.addEventListener('click', function () {
-            const currentFormCount = formsetDiv.getElementsByClassName('food-item-form').length;
-            const newForm = formsetDiv.getElementsByClassName('food-item-form')[0].cloneNode(true);
+            const newForm = document.querySelector('.food-item-form').cloneNode(true);
+            newForm.innerHTML = newForm.innerHTML.replace(/fooditem-(\d+)/g, `fooditem-${formCount}`);
+            newForm.querySelectorAll('input').forEach(input => input.value = '');
 
-            updateFormIndex(newForm, currentFormCount);
+            const deleteCheckboxWrapper = newForm.querySelector('p'); // Finds the first <p> tag
+            if (deleteCheckboxWrapper && deleteCheckboxWrapper.textContent.includes('Delete')) {
+                deleteCheckboxWrapper.remove();
+            }
 
-            const newFormInputs = newForm.querySelectorAll('input, select, textarea');
-            newFormInputs.forEach(input => {
-                if (input.type !== 'hidden') {
-                    input.value = '';
-                }
-                if (input.type === 'checkbox' || input.type === 'radio') {
-                    input.checked = false;
-                }
+            const removeButton = document.createElement('button');
+            removeButton.type = 'button';
+            removeButton.className = 'remove-food-item';
+            removeButton.textContent = 'Remove';
+            newForm.appendChild(removeButton);
+
+            document.getElementById('food-items').appendChild(newForm);
+
+            totalForms.value = formCount + 1;
+
+            removeButton.addEventListener('click', function () {
+                removeForm(newForm);
             });
+        }
 
-            formsetDiv.appendChild(newForm);
+        function removeForm(form) {
+            const totalForms = document.getElementById('id_fooditem-TOTAL_FORMS');
+            const formCount = parseInt(totalForms.value);
 
-            totalForms.setAttribute('value', currentFormCount + 1);
+            form.remove();
 
-            addRemoveHandlers();
+            totalForms.value = formCount - 1;
+
+            const forms = document.querySelectorAll('.food-item-form');
+            forms.forEach((form, index) => {
+                form.innerHTML = form.innerHTML.replace(/fooditem-\d+/g, `fooditem-${index}`);
+            });
+        }
+
+        document.getElementById('add-food-item').addEventListener('click', addForm);
+
+        document.querySelectorAll('.remove-food-item').forEach(button => {
+            button.addEventListener('click', function () {
+                removeForm(button.parentElement);
+            });
         });
-
-        function updateFormIndex(form, index) {
-            const regex = /fooditem-(\d+)-/g;
-            form.innerHTML = form.innerHTML.replace(regex, `fooditem-${index}-`);
-
-            const allElements = form.querySelectorAll('input, label');
-            allElements.forEach(element => {
-                if (element.id) {
-                    element.id = element.id.replace(regex, `fooditem-${index}-`);
-                }
-                if (element.name) {
-                    element.name = element.name.replace(regex, `fooditem-${index}-`);
-                }
-                if (element.htmlFor) {
-                    element.htmlFor = element.htmlFor.replace(regex, `fooditem-${index}-`);
-                }
-            });
-        }
-
-        function addRemoveHandlers() {
-            const removeButtons = document.querySelectorAll('.remove-form');
-            removeButtons.forEach(button => {
-                button.onclick = function (e) {
-                    e.preventDefault();
-                    const formToRemove = e.target.closest('.food-item-form');
-                    formToRemove.remove();
-
-                    updateTotalForms();
-                };
-            });
-        }
-
-        function updateTotalForms() {
-            const formCount = formsetDiv.getElementsByClassName('food-item-form').length;
-            totalForms.setAttribute('value', formCount);
-        }
-
-        addRemoveHandlers();
     });
-
 </script>
-
 {% endblock %}
