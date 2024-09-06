@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.views import LoginView 
 from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
@@ -9,7 +10,7 @@ from django.forms import modelformset_factory, inlineformset_factory
 from django.http import HttpResponse, JsonResponse
 from .forms import FeedingForm, FoodItemFormSet, CreateUserForm, FoodItemForm
 from .models import Profile, Feeding, FoodItem
-from .utils import get_nutrition_data
+from .utils import get_nutrition_data, get_instant_data
 import os
 import requests
 
@@ -129,11 +130,40 @@ def signup(request):
     context = {'form': form, 'error_message': error_message}
     return render(request, 'signup.html', context)
 
+# def nutrition_view(request):
+#     if request.method == 'GET':
+#         query = request.GET.get('query', '')
+#         if query:
+#             nutrition_data = get_nutrition_data(query)
+#             return JsonResponse(nutrition_data)
+#         else:
+#             return JsonResponse({'error': 'No query provided.'}, status=400)
+
+@csrf_exempt  # Allows AJAX POST requests without CSRF token (ensure security in production)
 def nutrition_view(request):
-    if request.method == 'GET':
-        query = request.GET.get('query', '')
-        if query:
-            nutrition_data = get_nutrition_data(query)
-            return JsonResponse(nutrition_data)
-        else:
-            return JsonResponse({'error': 'No query provided.'}, status=400)
+    if request.method == "POST":
+        selected_food = request.POST.get("selection", "")
+        if not selected_food:
+            return JsonResponse({"error": "No selection provided"}, status=400)
+
+        try:
+            data = get_nutrition_data(selected_food)  # Fetch detailed nutrition data
+            if "error" in data:
+                return JsonResponse({"error": data["error"]}, status=500)
+            return JsonResponse(data, status=200)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    return JsonResponse({"error": "Invalid request method"}, status=405)
+
+def get_instant_data_view(request):
+    query = request.GET.get("query", "")
+    if not query:
+        return JsonResponse({"error": "No query provided."}, status=400)
+
+    try:
+        data = get_instant_data(query)
+        if "error" in data:
+            return JsonResponse({"error": data["error"]}, status=500)
+        return JsonResponse({"foods": data["common"]}, status=200)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)

@@ -17,11 +17,16 @@ def get_instant_data(query):
         'query': query
     }
 
-    response = requests.get(url, headers=headers, json=payload)
-    if response.status_code == 200:
-        return json.loads(response.text)
-    else:
-        return {'error': 'Failed to fetch data', 'status_code': response.status_code}
+    try:
+        response = requests.get(url, headers=headers, params=payload)
+        response.raise_for_status()
+        return response.json()
+    except requests.RequestException as error:
+        return {
+            'error': 'Failed to fetch data',
+            'status_code': response.status_code,
+            'message': str(error)
+        }
 
 
 def get_nutrition_data(query):

@@ -33,6 +33,7 @@
                 <input type="text" id="nutrition-search" placeholder="Search food">
                 <button type="button" id="search-button">Search</button>
             </div>
+            <div id="search-results" class="search-results"></div>
             <div id="food-items">
                 {{ food_item_formset.management_form }}
                 {% for form in food_item_formset %}
@@ -54,19 +55,71 @@
         const formsetDiv = document.getElementById('food-items');
         const addFoodItemBtn = document.getElementById('add-food-item');
         const totalForms = document.querySelector('[name="fooditem-TOTAL_FORMS"]');
-        const searchButton = document.getElementById('search-button');
+        // const searchButton = document.getElementById('search-button');
         const searchInput = document.getElementById('nutrition-search');
-        const searchResultsDiv = document.getElementById('search-results');
+        // const searchResultsDiv = document.getElementById('search-results');
+        const searchResultsDiv = document.createElement('div');
+        searchResultsDiv.id = 'search-results';
+        searchResultsDiv.classList.add('search-results');
+        searchInput.parentNode.insertBefore(searchResultsDiv, searchInput.nextSibling)
 
-        // Search Button Click Event
-        searchButton.addEventListener('click', function () {
+        searchInput.addEventListener('input', function () {
             const query = searchInput.value;
             if (!query) {
-                alert('Please enter a search query');
+                searchResultsDiv.innerHTML = '';
                 return;
             }
 
-            fetch(`/get-nutrition-data?query=${encodeURIComponent(query)}`)
+            fetch(`/get-instant-data/?query=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert(data.error);
+                    } else {
+                        displaySearchResults(data.foods);
+                    }
+                })
+                .catch(error => console.error('Error fetching nutrition data:', error));
+        });
+
+        function displaySearchResults(foods) {
+            searchResultsDiv.innerHTML = ''; // Clear previous results
+
+            foods.forEach(food => {
+                const resultItem = document.createElement('div');
+                resultItem.classList.add('search-result-item');
+                
+                // Display food image
+                if (food.photo && food.photo.thumb) {
+                    const foodImage = document.createElement('img');
+                    foodImage.src = food.photo.thumb;
+                    foodImage.alt = food.food_name;
+                    foodImage.classList.add('food-image');
+                    resultItem.appendChild(foodImage);
+                }
+                // Display food name
+                const foodName = document.createElement('p');
+                foodName.textContent = food.food_name;
+                resultItem.appendChild(foodName);
+                
+                resultItem.addEventListener('click', function () {
+                    fetchNutritionData(food.food_name, food.photo.thumb);
+                    searchResultsDiv.innerHTML = ''; // Clear results after selection
+                    searchInput.value = ''; // Clear input after selection
+                });
+                searchResultsDiv.appendChild(resultItem);
+            });
+        }
+
+        function fetchNutritionData(selection) {
+            fetch('/get-nutrition-data/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': getCookie('csrftoken')  // Include CSRF token if needed
+                },
+                body: new URLSearchParams({ 'selection': selection })
+            })
                 .then(response => response.json())
                 .then(data => {
                     if (data.error) {
@@ -75,10 +128,9 @@
                         populateFoodItemForm(data);
                     }
                 })
-                .catch(error => console.error('Error fetching nutrition data:', error));
-        });
-
-        // Add Food Item from Search
+                .catch(error => console.error('Error fetching detailed nutrition data:', error));
+        }
+       
         function populateFoodItemForm(data) {
             const currentFormCount = formsetDiv.getElementsByClassName('food-item-form').length;
             const newForm = formsetDiv.getElementsByClassName('food-item-form')[0].cloneNode(true);
@@ -94,6 +146,22 @@
             formsetDiv.appendChild(newForm);
             totalForms.setAttribute('value', currentFormCount + 1);
             addRemoveHandlers();
+        }
+
+        // CSRF Token Helper Function
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
         }
 
         // ADD/REMOVE FORMS
@@ -155,5 +223,44 @@
     });
 
 </script>
+
+<style>
+    .search-results {
+    border: 1px solid #ccc;
+    max-height: 200px;
+    overflow-y: auto;
+    position: absolute;
+    background-color: white;
+    width: 100%;
+    z-index: 1000;
+}
+
+.search-result-item {
+    padding: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.food-image {
+    width: 50px;
+    height: 50px;
+    margin-right: 10px;
+    border-radius: 5px;
+}
+
+.food-form-image {
+    width: 100px;
+    height: 100px;
+    margin-top: 10px;
+    border-radius: 5px;
+}
+
+.search-result-item:hover {
+    background-color: #f0f0f0;
+}
+
+
+</style>
 
 {% endblock %}
