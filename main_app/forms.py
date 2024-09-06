@@ -3,6 +3,7 @@ from django.forms import formset_factory, inlineformset_factory
 from .models import Feeding, FoodItem
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from django.utils import timezone
 from .models import Profile
 
 class FeedingForm(forms.ModelForm):
@@ -18,6 +19,10 @@ class FeedingForm(forms.ModelForm):
                 }
             ),
         }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Set the initial value for the 'date' field to the current date
+        self.fields['date'].initial = timezone.now().date()
 
 class FoodItemForm(forms.ModelForm):
     class Meta:
@@ -36,7 +41,6 @@ FoodItemFormSet = inlineformset_factory(
     extra=1,
     can_delete=True
 )
-
 
 
 class CreateUserForm(UserCreationForm):

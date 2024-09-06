@@ -9,7 +9,7 @@ from django.forms import modelformset_factory, inlineformset_factory
 from django.http import HttpResponse, JsonResponse
 from .forms import FeedingForm, FoodItemFormSet, CreateUserForm, FoodItemForm
 from .models import Profile, Feeding, FoodItem
-from . import utils
+from .utils import get_nutrition_data
 import os
 import requests
 
@@ -79,16 +79,14 @@ class MealDelete(LoginRequiredMixin, DeleteView):
      model = Feeding
      success_url = '/dashboard/'
 
+@login_required
 def update_feeding(request, pk):
-    # Get the Feeding instance or return 404
     feeding = get_object_or_404(Feeding, pk=pk)
 
-    # Define the inline formset
     FoodItemFormSet = inlineformset_factory(
         Feeding, FoodItem, form=FoodItemForm, extra=1, can_delete=True
     )
 
-    # Process the form on POST request
     if request.method == "POST":
         feeding_form = FeedingForm(request.POST, instance=feeding)
         food_item_formset = FoodItemFormSet(
@@ -96,16 +94,13 @@ def update_feeding(request, pk):
         )
 
         if feeding_form.is_valid() and food_item_formset.is_valid():
-            # Save both feeding form and food items formset
             feeding_form.save()
             food_item_formset.save()
             return redirect("meal-detail", feeding_id=feeding.pk)
     else:
-        # Initialize forms for GET request
         feeding_form = FeedingForm(instance=feeding)
         food_item_formset = FoodItemFormSet(instance=feeding, prefix="fooditem")
 
-    # Render the template with the form and formset
     return render(
         request,
         "main_app/feeding_form.html",
@@ -135,6 +130,10 @@ def signup(request):
     return render(request, 'signup.html', context)
 
 def nutrition_view(request):
-        food_item = request.GET.get('food', 'eggs')
-        nutrtition_data = utils.get_nutrition_data(food_item)
-        return JsonResponse(nutrtition_data)
+    if request.method == 'GET':
+        query = request.GET.get('query', '')
+        if query:
+            nutrition_data = get_nutrition_data(query)
+            return JsonResponse(nutrition_data)
+        else:
+            return JsonResponse({'error': 'No query provided.'}, status=400)

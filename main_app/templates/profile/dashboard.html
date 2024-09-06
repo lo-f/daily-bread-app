@@ -19,6 +19,8 @@
 
 <div class="container mt-5">
     <h2>Create a New Meal</h2>
+
+
     <form method="post" id="feeding-form">
         {% csrf_token %}
 
@@ -27,6 +29,10 @@
             {{ feeding_form.as_p }}
 
             <h4>Food Items</h4>
+            <div>
+                <input type="text" id="nutrition-search" placeholder="Search food">
+                <button type="button" id="search-button">Search</button>
+            </div>
             <div id="food-items">
                 {{ food_item_formset.management_form }}
                 {% for form in food_item_formset %}
@@ -48,7 +54,49 @@
         const formsetDiv = document.getElementById('food-items');
         const addFoodItemBtn = document.getElementById('add-food-item');
         const totalForms = document.querySelector('[name="fooditem-TOTAL_FORMS"]');
+        const searchButton = document.getElementById('search-button');
+        const searchInput = document.getElementById('nutrition-search');
+        const searchResultsDiv = document.getElementById('search-results');
 
+        // Search Button Click Event
+        searchButton.addEventListener('click', function () {
+            const query = searchInput.value;
+            if (!query) {
+                alert('Please enter a search query');
+                return;
+            }
+
+            fetch(`/get-nutrition-data?query=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert(data.error);
+                    } else {
+                        populateFoodItemForm(data);
+                    }
+                })
+                .catch(error => console.error('Error fetching nutrition data:', error));
+        });
+
+        // Add Food Item from Search
+        function populateFoodItemForm(data) {
+            const currentFormCount = formsetDiv.getElementsByClassName('food-item-form').length;
+            const newForm = formsetDiv.getElementsByClassName('food-item-form')[0].cloneNode(true);
+
+            updateFormIndex(newForm, currentFormCount);
+
+            newForm.querySelector('[name$="name"]').value = data.foods[0].food_name;
+            newForm.querySelector('[name$="calories"]').value = data.foods[0].nf_calories;
+            newForm.querySelector('[name$="fats"]').value = data.foods[0].nf_total_fat;
+            newForm.querySelector('[name$="proteins"]').value = data.foods[0].nf_protein;
+            newForm.querySelector('[name$="carbs"]').value = data.foods[0].nf_total_carbohydrate;
+
+            formsetDiv.appendChild(newForm);
+            totalForms.setAttribute('value', currentFormCount + 1);
+            addRemoveHandlers();
+        }
+
+        // ADD/REMOVE FORMS
         addFoodItemBtn.addEventListener('click', function () {
             const currentFormCount = formsetDiv.getElementsByClassName('food-item-form').length;
             const newForm = formsetDiv.getElementsByClassName('food-item-form')[0].cloneNode(true);
