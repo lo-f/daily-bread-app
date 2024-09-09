@@ -21,7 +21,6 @@ class FeedingForm(forms.ModelForm):
         }
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Set the initial value for the 'date' field to the current date
         self.fields['date'].initial = timezone.now().date()
 
 class FoodItemForm(forms.ModelForm):
@@ -32,12 +31,20 @@ class FoodItemForm(forms.ModelForm):
             'calories',
             'fats',
             'proteins',
-            'carbs'
+            'carbs',
+            'photo_url',
         ]
+        widgets = {
+            'photo_url': forms.HiddenInput()  # Make photo_url field hidden
+        }
+
 FoodItemFormSet = inlineformset_factory(
     Feeding, FoodItem,
     form=forms.ModelForm,
-    fields=['name', 'calories', 'fats', 'proteins', 'carbs'],
+    fields=['name', 'calories', 'fats', 'proteins', 'carbs', 'photo_url'],
+    widgets = {
+            'photo_url': forms.HiddenInput()  # Make photo_url field hidden
+    },
     extra=1,
     can_delete=True
 )

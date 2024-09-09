@@ -36,8 +36,9 @@
             <div id="search-results" class="search-results"></div>
             <div id="food-items">
                 {{ food_item_formset.management_form }}
+                
                 {% for form in food_item_formset %}
-                <div class="food-item-form">
+                <div class="food-item-form hidden-form">  <!-- Add class to hide the form -->
                     {{ form.as_p }}
                     <button type="button" class="remove-form">Remove</button>
                 </div>
@@ -54,6 +55,7 @@
     document.addEventListener('DOMContentLoaded', function () {
         const formsetDiv = document.getElementById('food-items');
         const addFoodItemBtn = document.getElementById('add-food-item');
+        const initialForm = formsetDiv.getElementsByClassName('food-item-form')[0]; // Select the initial hidden form
         const totalForms = document.querySelector('[name="fooditem-TOTAL_FORMS"]');
         // const searchButton = document.getElementById('search-button');
         const searchInput = document.getElementById('nutrition-search');
@@ -83,7 +85,7 @@
         });
 
         function displaySearchResults(foods) {
-            searchResultsDiv.innerHTML = ''; // Clear previous results
+            searchResultsDiv.innerHTML = '';
 
             foods.forEach(food => {
                 const resultItem = document.createElement('div');
@@ -104,8 +106,8 @@
                 
                 resultItem.addEventListener('click', function () {
                     fetchNutritionData(food.food_name, food.photo.thumb);
-                    searchResultsDiv.innerHTML = ''; // Clear results after selection
-                    searchInput.value = ''; // Clear input after selection
+                    searchResultsDiv.innerHTML = '';
+                    searchInput.value = '';
                 });
                 searchResultsDiv.appendChild(resultItem);
             });
@@ -116,7 +118,7 @@
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-CSRFToken': getCookie('csrftoken')  // Include CSRF token if needed
+                    'X-CSRFToken': getCookie('csrftoken') 
                 },
                 body: new URLSearchParams({ 'selection': selection })
             })
@@ -133,7 +135,8 @@
        
         function populateFoodItemForm(data) {
             const currentFormCount = formsetDiv.getElementsByClassName('food-item-form').length;
-            const newForm = formsetDiv.getElementsByClassName('food-item-form')[0].cloneNode(true);
+            const newForm = initialForm.cloneNode(true);
+            newForm.style.display = 'block'; // Ensure the new form is visible
 
             updateFormIndex(newForm, currentFormCount);
 
@@ -142,6 +145,11 @@
             newForm.querySelector('[name$="fats"]').value = data.foods[0].nf_total_fat;
             newForm.querySelector('[name$="proteins"]').value = data.foods[0].nf_protein;
             newForm.querySelector('[name$="carbs"]').value = data.foods[0].nf_total_carbohydrate;
+
+            // New line to add the photo URL
+            if (data.foods[0].photo && data.foods[0].photo.thumb) {
+                newForm.querySelector('[name$="photo_url"]').value = data.foods[0].photo.thumb;
+            }
 
             formsetDiv.appendChild(newForm);
             totalForms.setAttribute('value', currentFormCount + 1);
@@ -164,23 +172,33 @@
             return cookieValue;
         }
 
+        initialForm.style.display = 'none';
+
         // ADD/REMOVE FORMS
         addFoodItemBtn.addEventListener('click', function () {
             const currentFormCount = formsetDiv.getElementsByClassName('food-item-form').length;
-            const newForm = formsetDiv.getElementsByClassName('food-item-form')[0].cloneNode(true);
 
-            updateFormIndex(newForm, currentFormCount);
+            // Show the initial form if this is the first form being added
+            if (currentFormCount === 1 && initialForm.style.display === 'none') {
+                initialForm.style.display = 'block';  // Reveal the initial hidden form
+                totalForms.setAttribute('value', 1); // Update form count
+                addRemoveHandlers(); // Add remove handlers to the newly shown form
+            } else {
+                // Clone the form if more forms are being added
+                const newForm = initialForm.cloneNode(true);
 
-            const newFormInputs = newForm.getElementsByTagName('input');
-            for (let input of newFormInputs) {
-                input.value = '';
+                updateFormIndex(newForm, currentFormCount);
+
+                const newFormInputs = newForm.getElementsByTagName('input');
+                for (let input of newFormInputs) {
+                    input.value = '';
+                }
+
+                formsetDiv.appendChild(newForm);
+                totalForms.setAttribute('value', currentFormCount + 1);
+
+                addRemoveHandlers();
             }
-
-            formsetDiv.appendChild(newForm);
-
-            totalForms.setAttribute('value', currentFormCount + 1);
-
-            addRemoveHandlers();
         });
 
         function updateFormIndex(form, index) {
@@ -260,6 +278,9 @@
     background-color: #f0f0f0;
 }
 
+.hidden-form {
+    display: none; /* Initially hide the form */
+}
 
 </style>
 
