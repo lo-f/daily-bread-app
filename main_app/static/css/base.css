@@ -1,3 +1,171 @@
+/* static/css/base.css  */
+
+html {
+  box-sizing: border-box;
+}
+
+/* The Universal Selector */
+*,
+/* All elements*/
+*::before,
+/* All ::before pseudo-elements */
+*::after {
+  /* All ::after pseudo-elements */
+  /* height & width will now include border & padding by default
+     but can be over-ridden as needed */
+  box-sizing: inherit;
+}
+
+/* resets font size to be 62.5% of the user preference - 
+     in most browser configurations this will be 10px */
+:root {
+  font-size: 62.5%;
+}
+
 body {
-    background-color: rgb(254, 255, 237);
+  margin: 0;
+  margin-top: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  --nav-bg: #ffffff;
+  --borders: #000000 solid 3px;
+  --link-hover-color: #000000;
+  --button-bg: #000000;
+  --button-bg-hove: #ffffff;
+  --submit: #000000;
+  --warn: red;
+  --danger: red;
+  --secondary: #000000;
+  --card-box-shadow: 5px 5px 6px -1px gray;
+  --font-xtreme: 4.2rem;
+  --font-xxl: 3.6rem;
+  --font-xl: 2.4rem;
+  --font-l: 1.8rem;
+  --font-reg: 1.6rem;
+  --card-border-radius: 6px;
+}
+
+html, body {
+  height: 100%; /* Ensure html and body take up full height */
+  margin: 0; /* Remove default margin */
+  padding: 0; /* Remove default padding */
+  overflow: hidden; /* Prevent overflow */
+  box-sizing: border-box; /* Include padding and border in width/height */
+}
+
+header {
+  width: 100%;
+  background: var(--nav-bg);
+  border-bottom: var(--borders);
+}
+
+nav {
+  position: fixed; /* Keep the navbar fixed */
+  top: 0; /* Align it to the top */
+  left: 0; /* Align it to the left */
+  width: 100%; /* Full width */
+  height: 60px; /* Fixed height */
+  display: flex; /* Flex for alignment */
+  align-items: center; /* Center items vertically */
+  padding: 0 20px; /* Padding */
+  box-sizing: border-box; /* Include padding in width calculation */
+  background: var(--nav-bg); /* Background color */
+  border-bottom: var(--borders); /* Bottom border */
+  z-index: 1000; /* Ensure navbar is on top */
+}
+
+main {
+  margin-top: 55px;
+  flex: 1; /* Allow the main content to expand and take up remaining space */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start; /* Center content vertically and horizontally */
+  width: 100%; /* Full width */
+  overflow-y: auto; /* Scroll vertically if content overflows */
+}
+
+.header-logo-container {
+  display: flex;  /* Flexbox for centering content */
+  align-items: center;  /* Center logo vertically */
+  height: 100%;  /* Fill the height of the nav */
+  margin-right: auto;  /* Push it to the left */
+  max-height: 100%;  /* Ensure the container respects nav's height */
+  overflow: hidden;  /* Hide overflow if the image is too large */
+}
+
+.header-logo-container a {
+  display: flex;  /* Flexbox for centering content */
+  align-items: center;  /* Center logo vertically */
+  height: 100%;  /* Fill the height of the logo container */
+}
+
+/* Scale the image to fit the anchor tag */
+.header-logo-container img {
+  max-height: 100%;  /* Scale the image to fit the container height */
+  width: auto;  /* Maintain the aspect ratio */
+  display: block;  /* Remove bottom space/gap */
+  max-width: 100%;  /* Prevent the image from being wider than the container */
+}
+
+
+nav ul {
+  display: flex;  /* Make ul a flex container */
+  align-items: center;  /* Center items vertically */
+  padding: 0;  /* Remove default padding */
+  list-style: none;  /* Remove bullet points */
+  margin: 0;  /* Reset margin */
+  font-size: large;
+}
+
+nav ul li {
+  margin-left: 20px;  /* Add spacing between the items */
+}
+
+nav ul li a {
+  text-decoration: none;  /* Remove underline from links */
+  padding: 10px 15px;  /* Add padding for better appearance */
+  background-color: transparent;  /* Background color */
+  color: #000000;  /* Text color */
+  transition: background-color 0.3s;
+  border-bottom: 2px solid transparent;  /* Smooth transition for hover effect */
+}
+
+nav ul li a:hover {
+  background-color: #ffffff; /* Example hover background color */
+  border-bottom: 2px solid #000000; /* Add bottom border on hover */
+}
+
+footer {
+  height: 60px; /* Fixed footer height */
+  width: 100%; /* Full width */
+  background: var(--nav-bg); /* Background color */
+  border-top: var(--borders); /* Top border */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#logout-form {
+  margin: 0;  /* Remove margin from form */
+  padding: 0;  /* Remove padding from form */
+}
+
+#logout-btn {
+  padding: 10px 15px;  /* Add padding to match links */
+  border: none;  /* Remove default button border */
+  background-color: var(--button-bg);  /* Same background color as links */
+  color: #fff;  /* Text color to match links */
+  cursor: pointer;  /* Cursor change to pointer to indicate clickable */
+  border-radius: 4px;  /* Rounded corners to match links */
+  text-decoration: none;  /* Remove any default underline */
+  transition: background-color 0.3s;  /* Smooth transition for hover effect */
+}
+
+#logout-btn:hover {
+  background-color: var(--button-bg-hove);  /* Same hover effect as links */
+  color: var(--link-hover-color);
+  border: #000000 solid 2px;  /* Same hover text color */
 }

@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.forms import modelformset_factory, inlineformset_factory
 from django.http import HttpResponse, JsonResponse
+from django.urls import reverse_lazy
 from .forms import FeedingForm, FoodItemFormSet, CreateUserForm, FoodItemForm
 from .models import Profile, Feeding, FoodItem
 from .utils import get_nutrition_data, get_instant_data
@@ -27,6 +28,9 @@ load_dotenv()
 # Create your views here.
 class Home(LoginView):
     template_name = 'home.html'
+
+    def get_success_url(self):
+        return reverse_lazy('dashboard')
 # def Home(request):
 #     return HttpResponse('Hello World')
 

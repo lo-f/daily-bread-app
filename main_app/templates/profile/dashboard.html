@@ -1,11 +1,10 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block head %}
-
+<link rel="stylesheet" href="{% static 'css/profile/dashboard.css' %}" />
 {% endblock %}
 
 {% block content %}
-
 <h1>Dashboard</h1>
 
 <h2>Feedings</h2>
@@ -16,6 +15,9 @@
     </li>
     {% endfor %}
 </ul>
+<div class="metrics-container">
+
+</div>
 
 <div class="container mt-5">
     <h2>Create a New Meal</h2>
@@ -242,46 +244,5 @@
 
 </script>
 
-<style>
-    .search-results {
-    border: 1px solid #ccc;
-    max-height: 200px;
-    overflow-y: auto;
-    position: absolute;
-    background-color: white;
-    width: 100%;
-    z-index: 1000;
-}
-
-.search-result-item {
-    padding: 10px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-}
-
-.food-image {
-    width: 50px;
-    height: 50px;
-    margin-right: 10px;
-    border-radius: 5px;
-}
-
-.food-form-image {
-    width: 100px;
-    height: 100px;
-    margin-top: 10px;
-    border-radius: 5px;
-}
-
-.search-result-item:hover {
-    background-color: #f0f0f0;
-}
-
-.hidden-form {
-    display: none; /* Initially hide the form */
-}
-
-</style>
 
 {% endblock %}
