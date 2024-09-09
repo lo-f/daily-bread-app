@@ -42,6 +42,7 @@ class FoodItem(models.Model):
     fats = models.FloatField()
     proteins = models.FloatField()
     carbs = models.FloatField()
+    photo_url = models.URLField(max_length=500, blank=True, null=True) 
 
     def __str__(self):
         return self.name
