@@ -31,7 +31,7 @@ class Feeding(models.Model):
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.get_meal_display()} on {self.date}"
+        return f"{self.get_meal_display().upper()} {self.date.strftime('%m/%d/%Y')}"
     class Meta:
         ordering = ['-date']
 

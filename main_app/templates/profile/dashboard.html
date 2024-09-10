@@ -2,32 +2,41 @@
 {% load static %}
 {% block head %}
 <link rel="stylesheet" href="{% static 'css/profile/dashboard.css' %}" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 {% endblock %}
 
 {% block content %}
 <h1>Dashboard</h1>
-
-<h2>Feedings</h2>
-<ul>
-    {% for feeding in feedings %}
-    <li>
-        <a href="{% url 'meal-detail' feeding.id %}">{{ feeding }}</a>
-    </li>
-    {% endfor %}
-</ul>
-<div class="metrics-container">
-
+<div class="dashboard-flex">
+    <div class="feedings-container">
+        <h2>Feedings</h2>
+        <ul>
+            {% for feeding in feedings %}
+            <li class="feeding-item">
+                <a href="{% url 'meal-detail' feeding.id %}">
+                    <span class="meal">{{ feeding.get_meal_display|upper }}</span>
+                    <span class="date">{{ feeding.date|date:"m/d/Y" }}</span>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="metrics-container">
+        <h2>Today's Progress</h2>
+        <div class="metrics-flex-container">
+            <p class="today_calories"><strong>Total Calories:</strong></br> {{ daily_calories }} kcal</p>
+            <canvas id="nutritionChart" width="200" height="200"></canvas>
+        </div>
+    </div>
 </div>
 
 <div class="container mt-5">
-    <h2>Create a New Meal</h2>
-
+    <h2>Add a New Meal</h2>
 
     <form method="post" id="feeding-form">
         {% csrf_token %}
 
         <div>
-            <h3>Create a Feeding</h3>
             {{ feeding_form.as_p }}
 
             <h4>Food Items</h4>
@@ -40,7 +49,7 @@
                 {{ food_item_formset.management_form }}
                 
                 {% for form in food_item_formset %}
-                <div class="food-item-form hidden-form">  <!-- Add class to hide the form -->
+                <div class="food-item-form hidden-form">  
                     {{ form.as_p }}
                     <button type="button" class="remove-form">Remove</button>
                 </div>
@@ -57,7 +66,7 @@
     document.addEventListener('DOMContentLoaded', function () {
         const formsetDiv = document.getElementById('food-items');
         const addFoodItemBtn = document.getElementById('add-food-item');
-        const initialForm = formsetDiv.getElementsByClassName('food-item-form')[0]; // Select the initial hidden form
+        const initialForm = formsetDiv.getElementsByClassName('food-item-form')[0]; 
         const totalForms = document.querySelector('[name="fooditem-TOTAL_FORMS"]');
         // const searchButton = document.getElementById('search-button');
         const searchInput = document.getElementById('nutrition-search');
@@ -113,6 +122,17 @@
                 });
                 searchResultsDiv.appendChild(resultItem);
             });
+            if (foods.length > 0) {
+                searchResultsDiv.style.display = 'block';
+            }
+            document.addEventListener('click', function (event) {
+                const searchResultsDiv = document.getElementById('search-results');
+                if (!searchResultsDiv.contains(event.target) && event.target !== searchInput) {
+                    searchResultsDiv.style.display = 'none'; // Hide the dropdown menu
+                }
+});
+
+            
         }
 
         function fetchNutritionData(selection) {
@@ -138,7 +158,7 @@
         function populateFoodItemForm(data) {
             const currentFormCount = formsetDiv.getElementsByClassName('food-item-form').length;
             const newForm = initialForm.cloneNode(true);
-            newForm.style.display = 'block'; // Ensure the new form is visible
+            newForm.style.display = 'block';
 
             updateFormIndex(newForm, currentFormCount);
 
@@ -180,13 +200,11 @@
         addFoodItemBtn.addEventListener('click', function () {
             const currentFormCount = formsetDiv.getElementsByClassName('food-item-form').length;
 
-            // Show the initial form if this is the first form being added
             if (currentFormCount === 1 && initialForm.style.display === 'none') {
-                initialForm.style.display = 'block';  // Reveal the initial hidden form
-                totalForms.setAttribute('value', 1); // Update form count
-                addRemoveHandlers(); // Add remove handlers to the newly shown form
+                initialForm.style.display = 'block'; 
+                totalForms.setAttribute('value', 1); 
+                addRemoveHandlers(); 
             } else {
-                // Clone the form if more forms are being added
                 const newForm = initialForm.cloneNode(true);
 
                 updateFormIndex(newForm, currentFormCount);
@@ -242,6 +260,53 @@
         addRemoveHandlers();
     });
 
+    const fats = {{ nutrition_totals.total_fats|default:0 }};
+    const proteins = {{ nutrition_totals.total_proteins|default:0 }};
+    const carbs = {{ nutrition_totals.total_carbs|default:0 }};
+
+    const ctx = document.getElementById('nutritionChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Fats', 'Proteins', 'Carbs'],
+            datasets: [{
+                data: [fats, proteins, carbs],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.label || '';
+                            if (label) {
+                                label += ': '
+                            }
+                            if (context.raw !== null) {
+                                label += context.raw.toFixed(2) + 'g';
+                            }
+                            return label
+                        }
+                    }
+                }
+            }
+        }
+    });
 </script>
 
 

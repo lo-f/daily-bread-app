@@ -6,9 +6,11 @@ from django.contrib.auth.forms import UserCreationForm
 from django.views.generic.edit import DeleteView, UpdateView
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Sum
 from django.forms import modelformset_factory, inlineformset_factory
 from django.http import HttpResponse, JsonResponse
 from django.urls import reverse_lazy
+from django.utils import timezone
 from .forms import FeedingForm, FoodItemFormSet, CreateUserForm, FoodItemForm
 from .models import Profile, Feeding, FoodItem
 from .utils import get_nutrition_data, get_instant_data
@@ -38,6 +40,19 @@ class Home(LoginView):
 def dashboard(request):
     profile = Profile.objects.get(user=request.user)
     feedings = Feeding.objects.filter(profile=profile).order_by('-date')
+    
+    # Calculate total calories for the current day
+    today = timezone.now().date()
+    daily_calories = FoodItem.objects.filter(
+        meal__profile=profile, meal__date=today
+    ).aggregate(total_calories=Sum('calories'))['total_calories'] or 0
+    food_items_today = FoodItem.objects.filter(meal__profile=profile, meal__date=today)
+    nutrition_totals = food_items_today.aggregate(
+        total_fats=Sum('fats'),
+        total_proteins=Sum('proteins'),
+        total_carbs=Sum('carbs')
+    )
+
     if request.method == 'POST':
         feeding_form = FeedingForm(request.POST)
         food_item_formset = FoodItemFormSet(request.POST, prefix='fooditem')
@@ -57,7 +72,6 @@ def dashboard(request):
                 if form.instance.pk:
                     form.instance.delete()
 
-
             return redirect('dashboard')
     else:
         feeding_form = FeedingForm()
@@ -68,6 +82,8 @@ def dashboard(request):
          'feedings': feedings,
          'feeding_form': feeding_form,
          'food_item_formset': food_item_formset,
+         'daily_calories': daily_calories,
+         'nutrition_totals': nutrition_totals,
     }
     return render(request, 'profile/dashboard.html', context)
 
