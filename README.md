@@ -31,8 +31,4 @@ When users edit a meal, they can also add new food items. At first, the `feeding
 </a>
 
 ## Technologies:
-<img src="./main_app/static/images/image.png" alt="JavaScript" width="90">
-<img src="./main_app/static/images/image-1.png" alt="Python" width="90">
-<img src="./main_app/static/images/image-3.png" alt="Django" width="90">
-<img src="./main_app/static/images/image-5.png" alt="HTML" width="90">
-<img src="./main_app/static/images/image-6.png" alt="CSS" width="90">
+<img src="./main_app/static/images/image.png" alt="JavaScript" width="90"><img src="./main_app/static/images/image-1.png" alt="Python" width="90"><img src="./main_app/static/images/image-3.png" alt="Django" width="90"><img src="./main_app/static/images/image-5.png" alt="HTML" width="90"><img src="./main_app/static/images/image-6.png" alt="CSS" width="90">
