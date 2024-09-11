@@ -32,3 +32,8 @@ When users edit a meal, they can also add new food items. At first, the `feeding
 
 ## Technologies:
 <img src="./main_app/static/images/image.png" alt="JavaScript" width="90"><img src="./main_app/static/images/image-1.png" alt="Python" width="90"><img src="./main_app/static/images/image-3.png" alt="Django" width="90"><img src="./main_app/static/images/image-5.png" alt="HTML" width="90"><img src="./main_app/static/images/image-6.png" alt="CSS" width="90">
+
+## Next steps:
+- add additional relevant data for users like progress toward calorie limits or nutrients, exercise needed to burn certain calorie entries
+- refine sign up view
+- change edit view to reflect food items as cards similar to dashboard
