@@ -46,20 +46,28 @@ h2 {
 }
 
 .feedings-container ul li :hover{
-    margin-bottom: 15px;
+    margin-bottom: 0px;
     font-weight: 600;
-    border-bottom: #000000 solid 2px;
 }
 
 .feedings-container ul li a {
     text-decoration: none; 
     color: inherit;
-    font-size: x-large; 
+    font-size: clamp(1rem, 2vw + 1rem, 3rem);
+    display: flex;
+    justify-content: space-between;
 }
 
 .feedings-container ul li a:hover {
     text-decoration: none; 
-    color: inherit; 
+    color: #ffffff;
+    border: #000000 solid 1px;
+    padding: 1px;
+    background: #000000;
+}
+
+a .meal:hover {
+    text-decoration: none;
 }
 
 .feedings-container ul::-webkit-scrollbar {
@@ -69,55 +77,80 @@ h2 {
 
 .metrics-flex-container {
     display: flex;
-    flex-wrap: wrap;
+    justify-content: space-evenly;
+    flex-direction: column;
     align-items: center;
-    gap: 20px;
+    gap: 30px;
     flex-grow: 1; 
     flex-shrink: 1;
     max-width: 100%;
     max-height: 100%;
     overflow: hidden;
     box-sizing: border-box;
-    padding-bottom: 30px;
+    padding: 20px 0px;
     border-top: #000000 solid 3px;
 }
 
-.today_calories {
-    flex: 1;
-    font-size: 300%;
-    margin-top: 0;
-}
-
-#nutritionChart {
-    width: 100%;
-    max-width: 100%;
-    height: auto;
-    flex: 1;
-}
 
 @media (min-width: 768px) {
     .metrics-flex-container {
         flex-direction: row;
+        align-items: center;
+        justify-content: space-evenly;
+    }
+    
+    .today_calories, #nutritionChart {
+        flex: 1 1 50%; 
+        max-height: none;
+        align-items: center;
     }
 }
 
-@media (max-width: 300px) {
+@media (max-width: 768px) {
     .metrics-flex-container {
         flex-direction: column;
-        align-items: flex-start;
-        flex-wrap: wrap;
-        height: auto;
+        align-items: center;
+        width: 100%;
     }
-
+    
     #nutritionChart {
-        max-width: 100%;
-        height: auto;
+        width: 100%;
+        max-width: 300px; 
+        height: auto; 
+        max-height: 200px; 
+        box-sizing: border-box;
+        object-fit: contain; 
     }
-
+    
     .today_calories {
-        font-size: 200%;
+        font-size: 2em;
         margin-bottom: 0px;
+        margin-top: 10px;
+        width: 100%;
+        text-align: center;
     }
+}
+
+.today_calories {
+    flex: 1;
+    font-size: 2em;
+    margin-top: 10px;
+    margin-bottom: 0;
+    box-sizing: border-box;
+    max-width: 100%;
+}
+
+#nutritionChart {
+    flex: 1;
+    max-width: 200px;
+    max-height: 200px;
+    height: auto;
+    box-sizing: border-box;
+    object-fit: contain;
+}
+
+.today_calories, #nutritionChart {
+    flex: 1 1 50%;
 }
 
 .container-mt-5 {

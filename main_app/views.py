@@ -17,31 +17,24 @@ from .utils import get_nutrition_data, get_instant_data
 import os
 import requests
 
-
 import requests
 import os
 from dotenv import load_dotenv
 
-
 load_dotenv()
 
 
-
-# Create your views here.
 class Home(LoginView):
     template_name = 'home.html'
 
     def get_success_url(self):
         return reverse_lazy('dashboard')
-# def Home(request):
-#     return HttpResponse('Hello World')
 
 @login_required
 def dashboard(request):
     profile = Profile.objects.get(user=request.user)
     feedings = Feeding.objects.filter(profile=profile).order_by('-date')
     
-    # Calculate total calories for the current day
     today = timezone.now().date()
     daily_calories = FoodItem.objects.filter(
         meal__profile=profile, meal__date=today
@@ -146,7 +139,6 @@ def update_feeding(request, pk):
     )
 
 
-
 def signup(request):
     error_message = ''
     form = CreateUserForm(request.POST)
@@ -163,16 +155,8 @@ def signup(request):
     context = {'form': form, 'error_message': error_message}
     return render(request, 'signup.html', context)
 
-# def nutrition_view(request):
-#     if request.method == 'GET':
-#         query = request.GET.get('query', '')
-#         if query:
-#             nutrition_data = get_nutrition_data(query)
-#             return JsonResponse(nutrition_data)
-#         else:
-#             return JsonResponse({'error': 'No query provided.'}, status=400)
 
-@csrf_exempt  # Allows AJAX POST requests without CSRF token (ensure security in production)
+@csrf_exempt
 def nutrition_view(request):
     if request.method == "POST":
         selected_food = request.POST.get("selection", "")
@@ -180,7 +164,7 @@ def nutrition_view(request):
             return JsonResponse({"error": "No selection provided"}, status=400)
 
         try:
-            data = get_nutrition_data(selected_food)  # Fetch detailed nutrition data
+            data = get_nutrition_data(selected_food)
             if "error" in data:
                 return JsonResponse({"error": data["error"]}, status=500)
             return JsonResponse(data, status=200)
