@@ -1,0 +1,64 @@
+.food-item-image {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 5px; 
+    margin-right: 10px; 
+}
+
+.meal-header {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.meal-date-kind {
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+}
+
+.food-item-div {
+    margin-top: 20px;
+}
+
+.meal-header a, p {
+    font-size: 200%;
+}
+
+p {
+    margin-bottom: 0;
+}
+
+h1 {
+    font-size: 4em;
+}
+
+h2 {
+    font-size: 2em;
+    margin: 0px 0px 12px 0px;
+}
+
+.food-item-div table {
+    width: 80%; 
+    margin: 0 auto;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.food-item-div th,
+.food-item-div td {
+    border-bottom: 1px solid #000000; 
+    padding: 8px; 
+    text-align: center;
+    font-weight: 900;
+}
+
+.food-item-div th {
+    
+}
+
+.food-item-div .food-item-image {
+    width: 50px; 
+    height: auto; 
+}

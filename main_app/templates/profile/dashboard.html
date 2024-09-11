@@ -30,8 +30,8 @@
     </div>
 </div>
 
-<div class="container mt-5">
-    <h2>Add a New Meal</h2>
+<div class="container-mt-5">
+    <h3 style="margin: 24px 0px 18px">Add a New Meal</h3>
 
     <form method="post" id="feeding-form">
         {% csrf_token %}
@@ -39,7 +39,7 @@
         <div>
             {{ feeding_form.as_p }}
 
-            <h4>Food Items</h4>
+            <!-- <h4>Food Items</h4> -->
             <div>
                 <input type="text" id="nutrition-search" placeholder="Search food">
                 <button type="button" id="search-button">Search</button>
@@ -50,9 +50,20 @@
                 
                 {% for form in food_item_formset %}
                 <div class="food-item-form hidden-form">  
-                    {{ form.as_p }}
-                    <button type="button" class="remove-form">Remove</button>
+                    <div class="food-item-card">
+                        <img class="food-image" alt="Food Image">
+                        <p class="food-name"></p>
+                        <button type="button" class="remove-form">Remove</button>
+                    </div>
+                    <!-- Keep these hidden fields part of the form -->
+                    <input type="hidden" name="fooditem-0-photo_url">
+                    <input type="hidden" name="fooditem-0-name">
+                    <input type="hidden" name="fooditem-0-calories">
+                    <input type="hidden" name="fooditem-0-fats">
+                    <input type="hidden" name="fooditem-0-proteins">
+                    <input type="hidden" name="fooditem-0-carbs">
                 </div>
+                
                 {% endfor %}
             </div>
 
@@ -162,21 +173,30 @@
 
             updateFormIndex(newForm, currentFormCount);
 
-            newForm.querySelector('[name$="name"]').value = data.foods[0].food_name;
-            newForm.querySelector('[name$="calories"]').value = data.foods[0].nf_calories;
-            newForm.querySelector('[name$="fats"]').value = data.foods[0].nf_total_fat;
-            newForm.querySelector('[name$="proteins"]').value = data.foods[0].nf_protein;
-            newForm.querySelector('[name$="carbs"]').value = data.foods[0].nf_total_carbohydrate;
+            const foodName = data.foods[0].food_name;
+            const foodPhoto = data.foods[0].photo.thumb;
+            const calories = data.foods[0].nf_calories;
+            const fats = data.foods[0].nf_total_fat;
+            const proteins = data.foods[0].nf_protein;
+            const carbs = data.foods[0].nf_total_carbohydrate;
 
-            // New line to add the photo URL
-            if (data.foods[0].photo && data.foods[0].photo.thumb) {
-                newForm.querySelector('[name$="photo_url"]').value = data.foods[0].photo.thumb;
-            }
+            // Fill the hidden input fields
+            newForm.querySelector('[name$="name"]').value = foodName;
+            newForm.querySelector('[name$="photo_url"]').value = foodPhoto;
+            newForm.querySelector('[name$="calories"]').value = calories;
+            newForm.querySelector('[name$="fats"]').value = fats;
+            newForm.querySelector('[name$="proteins"]').value = proteins;
+            newForm.querySelector('[name$="carbs"]').value = carbs;
+
+            // Display the food image and name in the card
+            newForm.querySelector('.food-image').src = foodPhoto;
+            newForm.querySelector('.food-name').textContent = foodName;
 
             formsetDiv.appendChild(newForm);
             totalForms.setAttribute('value', currentFormCount + 1);
             addRemoveHandlers();
         }
+
 
         // CSRF Token Helper Function
         function getCookie(name) {
@@ -272,14 +292,14 @@
             datasets: [{
                 data: [fats, proteins, carbs],
                 backgroundColor: [
-                    'rgba(255, 99, 132, 0.2)',
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(255, 206, 86, 0.2)'
+                    '#ffffff',
+                    '#000000',
+                    '#f1f1f1'
                 ],
                 borderColor: [
-                    'rgba(255, 99, 132, 1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 206, 86, 1)'
+                    '#000000',
+                    '#000000',
+                    '#000000'
                 ],
                 borderWidth: 1
             }]
