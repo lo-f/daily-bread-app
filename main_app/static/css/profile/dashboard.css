@@ -20,7 +20,8 @@ h2 {
 .metrics-container {
     flex: 1; 
     padding: 20px; 
-    border: 1px solid #b3b3b3; 
+    border: 2px solid #000000;
+    box-shadow: 10px 10px 20px rgba(61, 61, 61, 0.2);
     border-radius: 5px; 
     background-color: #f9f9f9; 
     width: 100%;
@@ -41,6 +42,12 @@ h2 {
 
 .feedings-container ul li {
     margin-bottom: 15px;
+}
+
+.feedings-container ul li :hover{
+    margin-bottom: 15px;
+    font-weight: 600;
+    border-bottom: #000000 solid 2px;
 }
 
 .feedings-container ul li a {
@@ -93,22 +100,40 @@ h2 {
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 300px) {
     .metrics-flex-container {
         flex-direction: column;
         align-items: flex-start;
+        flex-wrap: wrap;
+        height: auto;
     }
 
     #nutritionChart {
         max-width: 100%;
         height: auto;
     }
+
+    .today_calories {
+        font-size: 200%;
+        margin-bottom: 0px;
+    }
 }
 
+.container-mt-5 {
+    font-size: 200%;
+}
+
+#nutrition-search {
+    margin-bottom: 10px;
+}
+
+#feeding-form p {
+    margin: 10px 0;
+}
 
 .search-results {
     max-height: 200px;
-    max-width: 200px;
+    max-width: 300px;
     overflow-y: auto;
     position: absolute;
     background-color: white;
@@ -144,4 +169,26 @@ h2 {
 
 .hidden-form {
     display: none; 
+}
+
+.food-item-card {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.food-image {
+    width: 50px;
+    height: 50px;
+    margin-right: 10px;
+}
+
+.food-name {
+    flex-grow: 1;
+    font-size: 1.1em;
+    font-weight: bold;
 }
