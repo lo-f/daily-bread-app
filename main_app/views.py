@@ -89,12 +89,25 @@ def dashboard(request):
 
 @login_required
 def meal_detail(request, feeding_id):
-     feeding = Feeding.objects.get(id=feeding_id)
-     feeding_form = FeedingForm()
-     return render(request, 'profile/meal_detail.html', {
-          'feeding': feeding,
-          'feeding_form': feeding_form
-     })
+    feeding = Feeding.objects.get(id=feeding_id)
+    feeding_form = FeedingForm()
+    total_calories = sum(item.calories for item in feeding.food_item.all())
+    total_fats = sum(item.fats for item in feeding.food_item.all())
+    total_proteins = sum(item.proteins for item in feeding.food_item.all())
+    total_carbs = sum(item.carbs for item in feeding.food_item.all())
+    
+    return render(
+        request,
+        "profile/meal_detail.html",
+        {
+            "feeding": feeding,
+            "feeding_form": feeding_form,
+            "total_calories": total_calories,
+            "total_fats": total_fats,
+            "total_proteins": total_proteins,
+            "total_carbs": total_carbs,
+        },
+    )
 
 class MealDelete(LoginRequiredMixin, DeleteView):
      model = Feeding

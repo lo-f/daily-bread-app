@@ -48,14 +48,27 @@ h2 {
 
 .food-item-div th,
 .food-item-div td {
-    border-bottom: 1px solid #000000; 
+    /* border-bottom: 1px solid #000000;  */
     padding: 8px; 
     text-align: center;
     font-weight: 900;
 }
 
-.food-item-div th {
-    
+.table-header {
+    border-bottom: #000000 solid 3px;
+}
+
+.table-header th {
+    font-weight: bold;
+    font-size: 150%;
+}
+
+tbody tr td, tfoot tr td {
+    font-size: 125%;
+}
+
+tfoot tr td {
+    border-top: #000000 solid 2px;
 }
 
 .food-item-div .food-item-image {
