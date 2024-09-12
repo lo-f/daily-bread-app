@@ -35,7 +35,7 @@ class FoodItemForm(forms.ModelForm):
             'photo_url',
         ]
         widgets = {
-            'photo_url': forms.HiddenInput()  # Make photo_url field hidden
+            'photo_url': forms.HiddenInput() 
         }
 
 FoodItemFormSet = inlineformset_factory(
@@ -43,7 +43,7 @@ FoodItemFormSet = inlineformset_factory(
     form=forms.ModelForm,
     fields=['name', 'calories', 'fats', 'proteins', 'carbs', 'photo_url'],
     widgets = {
-            'photo_url': forms.HiddenInput()  # Make photo_url field hidden
+            'photo_url': forms.HiddenInput()  
     },
     extra=1,
     can_delete=True

@@ -24,7 +24,9 @@
     <div class="metrics-container">
         <h2>Today's Progress</h2>
         <div class="metrics-flex-container">
-            <p class="today_calories"><strong>Total Calories:</strong></br> {{ daily_calories }} kcal</p>
+            <p class="today_calories">
+                <strong>Total Calories:</strong></br> {{ daily_calories }} kcal
+            </p>
             <canvas id="nutritionChart" width="100" height="100"></canvas>
         </div>
     </div>
@@ -39,7 +41,6 @@
         <div>
             {{ feeding_form.as_p }}
 
-            <!-- <h4>Food Items</h4> -->
             <div>
                 <input type="text" id="nutrition-search" placeholder="Search food">
                 <button type="button" id="search-button">Search</button>
@@ -55,7 +56,6 @@
                         <p class="food-name"></p>
                         <button type="button" class="remove-form">Remove</button>
                     </div>
-                    <!-- Keep these hidden fields part of the form -->
                     <input type="hidden" name="fooditem-0-photo_url">
                     <input type="hidden" name="fooditem-0-name">
                     <input type="hidden" name="fooditem-0-calories">
@@ -79,9 +79,7 @@
         const addFoodItemBtn = document.getElementById('add-food-item');
         const initialForm = formsetDiv.getElementsByClassName('food-item-form')[0]; 
         const totalForms = document.querySelector('[name="fooditem-TOTAL_FORMS"]');
-        // const searchButton = document.getElementById('search-button');
         const searchInput = document.getElementById('nutrition-search');
-        // const searchResultsDiv = document.getElementById('search-results');
         const searchResultsDiv = document.createElement('div');
         searchResultsDiv.id = 'search-results';
         searchResultsDiv.classList.add('search-results');
@@ -113,7 +111,6 @@
                 const resultItem = document.createElement('div');
                 resultItem.classList.add('search-result-item');
                 
-                // Display food image
                 if (food.photo && food.photo.thumb) {
                     const foodImage = document.createElement('img');
                     foodImage.src = food.photo.thumb;
@@ -121,7 +118,6 @@
                     foodImage.classList.add('food-image');
                     resultItem.appendChild(foodImage);
                 }
-                // Display food name
                 const foodName = document.createElement('p');
                 foodName.textContent = food.food_name;
                 resultItem.appendChild(foodName);
@@ -139,7 +135,7 @@
             document.addEventListener('click', function (event) {
                 const searchResultsDiv = document.getElementById('search-results');
                 if (!searchResultsDiv.contains(event.target) && event.target !== searchInput) {
-                    searchResultsDiv.style.display = 'none'; // Hide the dropdown menu
+                    searchResultsDiv.style.display = 'none'; 
                 }
 });
 
@@ -180,7 +176,6 @@
             const proteins = data.foods[0].nf_protein;
             const carbs = data.foods[0].nf_total_carbohydrate;
 
-            // Fill the hidden input fields
             newForm.querySelector('[name$="name"]').value = foodName;
             newForm.querySelector('[name$="photo_url"]').value = foodPhoto;
             newForm.querySelector('[name$="calories"]').value = calories;
@@ -188,7 +183,6 @@
             newForm.querySelector('[name$="proteins"]').value = proteins;
             newForm.querySelector('[name$="carbs"]').value = carbs;
 
-            // Display the food image and name in the card
             newForm.querySelector('.food-image').src = foodPhoto;
             newForm.querySelector('.food-name').textContent = foodName;
 
@@ -198,7 +192,6 @@
         }
 
 
-        // CSRF Token Helper Function
         function getCookie(name) {
             let cookieValue = null;
             if (document.cookie && document.cookie !== '') {
